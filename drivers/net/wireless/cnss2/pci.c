@@ -123,6 +123,7 @@ int cnss_suspend_pci_link(struct cnss_pci_data *pci_priv)
 	cnss_pr_dbg("Suspending PCI link\n");
 	if (!pci_priv->pci_link_state) {
 		cnss_pr_info("PCI link is already suspended!\n");
+		ret = -EINVAL;
 		goto out;
 	}
 
