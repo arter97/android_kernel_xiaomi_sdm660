@@ -1057,8 +1057,10 @@ static int cnss_qca6174_shutdown(struct cnss_plat_data *plat_priv)
 	cnss_pci_set_auto_suspended(pci_priv, 0);
 
 	ret = cnss_suspend_pci_link(pci_priv);
-	if (ret)
+	if (ret) {
 		cnss_pr_err("Failed to suspend PCI link, err = %d\n", ret);
+		return -EINVAL;
+	}
 
 	cnss_power_off_device(plat_priv);
 
