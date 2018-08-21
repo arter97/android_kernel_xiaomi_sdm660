@@ -1062,8 +1062,6 @@ static int cnss_qca6174_shutdown(struct cnss_plat_data *plat_priv)
 
 	cnss_power_off_device(plat_priv);
 
-	clear_bit(CNSS_DRIVER_UNLOADING, &plat_priv->driver_state);
-
 	return ret;
 }
 
@@ -1173,7 +1171,6 @@ static int cnss_qca6290_shutdown(struct cnss_plat_data *plat_priv)
 
 	clear_bit(CNSS_FW_READY, &plat_priv->driver_state);
 	clear_bit(CNSS_FW_MEM_READY, &plat_priv->driver_state);
-	clear_bit(CNSS_DRIVER_UNLOADING, &plat_priv->driver_state);
 
 	return ret;
 }
@@ -1672,6 +1669,7 @@ static int cnss_unregister_driver_hdlr(struct cnss_plat_data *plat_priv)
 	set_bit(CNSS_DRIVER_UNLOADING, &plat_priv->driver_state);
 	cnss_shutdown(plat_priv);
 	plat_priv->driver_ops = NULL;
+	clear_bit(CNSS_DRIVER_UNLOADING, &plat_priv->driver_state);
 
 	return 0;
 }
