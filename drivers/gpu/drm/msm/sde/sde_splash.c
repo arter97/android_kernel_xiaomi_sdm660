@@ -39,6 +39,8 @@
 #define SDE_LK_RUNNING_VALUE		0xC001CAFE
 #define SDE_LK_STOP_SPLASH_VALUE	0xDEADDEAD
 #define SDE_LK_EXIT_VALUE		0xDEADBEEF
+#define SDE_LK_INTERMEDIATE_STOP	0xBEEFBEEF
+#define SDE_LK_KERNEL_SPLASH_TALK_LOOP	20
 
 #define INTF_HDMI_SEL                  (BIT(25) | BIT(24))
 #define INTF_DSI0_SEL                  BIT(8)
@@ -195,8 +197,29 @@ static bool _sde_splash_lk_check(struct sde_hw_intr *intr)
  */
 static inline void _sde_splash_notify_lk_stop_splash(struct sde_hw_intr *intr)
 {
-	/* write splash stop signal to scratch register*/
+	int i = 0;
+
+	/* first write splash stop signal to scratch register */
 	SDE_REG_WRITE(&intr->hw, SCRATCH_REGISTER_1, SDE_LK_STOP_SPLASH_VALUE);
+
+	/*
+	 * Before next proceeding, kernel needs to check bootloader's
+	 * intermediate status to ensure LK's cocurrent flush is done.
+	 */
+	while (i++ < SDE_LK_KERNEL_SPLASH_TALK_LOOP) {
+		if ((SDE_LK_INTERMEDIATE_STOP ==
+			SDE_REG_READ(&intr->hw, SCRATCH_REGISTER_1)) ||
+			(SDE_LK_EXIT_VALUE ==
+			SDE_REG_READ(&intr->hw, SCRATCH_REGISTER_1)))
+			break;
+		else {
+			DRM_INFO("wait for LK's intermediate end for splash\n");
+			msleep(20);
+		}
+	}
+
+	if (i == SDE_LK_KERNEL_SPLASH_TALK_LOOP)
+		SDE_ERROR("Loop talk for LK and Kernel failed\n");
 }
 
 static int _sde_splash_gem_new(struct drm_device *dev,
