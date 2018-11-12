@@ -318,9 +318,10 @@ static void _sde_splash_sent_pipe_update_uevent(struct sde_kms *sde_kms)
 	}
 
 	for (i = 0; i < MAX_BLOCKS; i++) {
-		if (sde_kms->splash_info.reserved_pipe_info[i] != 0xFFFFFFFF)
+		if (sde_kms->splash_info.reserved_pipe_info[i].pipe_id !=
+								0xFFFFFFFF)
 			snprintf(event_string, SZ_4K, "pipe%d avialable",
-				sde_kms->splash_info.reserved_pipe_info[i]);
+			sde_kms->splash_info.reserved_pipe_info[i].pipe_id);
 	}
 
 	DRM_INFO("generating pipe update event[%s]", event_string);
@@ -389,6 +390,21 @@ static bool _sde_splash_validate_commit(struct sde_kms *sde_kms,
 	}
 
 	return false;
+}
+
+static void
+_sde_splash_release_early_splash_layer(struct sde_splash_info *splash_info)
+{
+	int i = 0;
+
+	for (i = 0; i < MAX_BLOCKS; i++) {
+		if (splash_info->reserved_pipe_info[i].early_release) {
+			splash_info->reserved_pipe_info[i].pipe_id =
+								0xFFFFFFFF;
+			splash_info->reserved_pipe_info[i].early_release =
+								false;
+		}
+	}
 }
 
 __ref int sde_splash_init(struct sde_power_handle *phandle, struct msm_kms *kms)
@@ -516,8 +532,10 @@ int sde_splash_parse_reserved_plane_dt(struct sde_splash_info *splash_info,
 	if (!parent)
 		return -EINVAL;
 
-	for (i = 0; i < MAX_BLOCKS; i++)
-		splash_info->reserved_pipe_info[i] = 0xFFFFFFFF;
+	for (i = 0; i < MAX_BLOCKS; i++) {
+		splash_info->reserved_pipe_info[i].pipe_id = 0xFFFFFFFF;
+		splash_info->reserved_pipe_info[i].early_release = false;
+	}
 
 	i = 0;
 	for_each_child_of_node(parent, node) {
@@ -530,8 +548,11 @@ int sde_splash_parse_reserved_plane_dt(struct sde_splash_info *splash_info,
 
 		of_property_for_each_string(node, "qcom,plane-name",
 					prop, cname)
-		splash_info->reserved_pipe_info[i] =
+			splash_info->reserved_pipe_info[i].pipe_id =
 					_sde_splash_parse_sspp_id(cfg, cname);
+
+		splash_info->reserved_pipe_info[i].early_release =
+			of_property_read_bool(node, "qcom,pipe-early-release");
 		i++;
 	}
 
@@ -554,7 +575,8 @@ bool sde_splash_query_plane_is_reserved(struct sde_splash_info *sinfo,
 		return false;
 
 	for (i = 0; i < MAX_BLOCKS; i++) {
-		if (sinfo->reserved_pipe_info[i] == pipe)
+		if (!sinfo->reserved_pipe_info[i].early_release &&
+			(sinfo->reserved_pipe_info[i].pipe_id == pipe))
 			return true;
 	}
 
@@ -756,12 +778,17 @@ bool sde_splash_get_lk_complete_status(struct msm_kms *kms)
 
 	intr = sde_kms->hw_intr;
 
-	if (sde_kms->splash_info.handoff &&
-		!sde_kms->splash_info.display_splash_enabled &&
-		SDE_LK_EXIT_VALUE == SDE_REG_READ(&intr->hw,
+	if (sde_kms->splash_info.handoff) {
+		if (sde_kms->splash_info.lk_is_exited)
+			return true;
+
+		if (!sde_kms->splash_info.display_splash_enabled &&
+			SDE_LK_EXIT_VALUE == SDE_REG_READ(&intr->hw,
 					SCRATCH_REGISTER_1)) {
-		SDE_DEBUG("LK totoally exits\n");
-		return true;
+			SDE_DEBUG("LK totally exits\n");
+			sde_kms->splash_info.lk_is_exited = true;
+			return true;
+		}
 	}
 
 	return false;
@@ -950,6 +977,9 @@ int sde_splash_lk_stop_splash(struct msm_kms *kms,
 			sinfo->display_splash_enabled) {
 		if (_sde_splash_lk_check(sde_kms->hw_intr))
 			_sde_splash_notify_lk_stop_splash(sde_kms->hw_intr);
+
+		/* release splash RGB layer */
+		_sde_splash_release_early_splash_layer(sinfo);
 
 		sinfo->display_splash_enabled = false;
 
