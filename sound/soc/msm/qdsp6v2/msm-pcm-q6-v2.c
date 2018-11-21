@@ -863,7 +863,8 @@ static int msm_pcm_playback_close(struct snd_pcm_substream *substream)
 		if (!ret)
 			pr_err("%s: CMD_EOS failed, cmd_pending 0x%lx\n",
 			       __func__, prtd->cmd_pending);
-		q6asm_cmd(prtd->audio_client, CMD_CLOSE);
+		if(atomic_read(&prtd->audio_client->cmd_state))
+			q6asm_cmd(prtd->audio_client, CMD_CLOSE);
 		q6asm_audio_client_buf_free_contiguous(dir,
 					prtd->audio_client);
 		q6asm_audio_client_free(prtd->audio_client);
