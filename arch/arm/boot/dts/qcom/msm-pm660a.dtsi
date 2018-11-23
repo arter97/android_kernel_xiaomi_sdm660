@@ -10,20 +10,22 @@
  * GNU General Public License for more details.
  */
 
-/* Disable WLED */
+/* Enable WLED */
 &pm660l_wled {
-	status = "disabled";
+	status = "okay";
 };
 
-/* disable LCDB */
+/* Enable LCDB */
 &pm660l_lcdb {
+	status = "okay";
+};
+
+/* Disable OLEDB */
+&pm660a_oledb {
 	status = "disabled";
 };
 
-&pm660a_oledb {
-	status = "okay";
-};
-
+/* Disable LABIBB */
 &pm660a_labibb {
-	status = "okay";
+	status = "disable";
 };

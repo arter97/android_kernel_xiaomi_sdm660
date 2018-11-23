@@ -248,6 +248,7 @@ struct smb_charger {
 	int			smb_version;
 	int			otg_delay_ms;
 	int			*weak_chg_icl_ua;
+	char			*debug_dump;
 
 	/* locks */
 	struct mutex		lock;
@@ -279,6 +280,7 @@ struct smb_charger {
 
 	/* votables */
 	struct votable		*dc_suspend_votable;
+	struct votable		*usb_suspend_votable;
 	struct votable		*fcc_votable;
 	struct votable		*fv_votable;
 	struct votable		*usb_icl_votable;
@@ -310,6 +312,8 @@ struct smb_charger {
 	struct work_struct	legacy_detection_work;
 	struct delayed_work	uusb_otg_work;
 	struct delayed_work	bb_removal_work;
+	struct delayed_work     update_current_work;
+	struct delayed_work	typec_disable_cmd_work;
 
 	/* cached status */
 	int			voltage_min_uv;
@@ -434,6 +438,8 @@ int smblib_get_prop_system_temp_level(struct smb_charger *chg,
 				union power_supply_propval *val);
 int smblib_get_prop_input_current_limited(struct smb_charger *chg,
 				union power_supply_propval *val);
+int smblib_get_prop_batt_charge_full_design(struct smb_charger *chg,
+				     union power_supply_propval *val);
 int smblib_set_prop_input_suspend(struct smb_charger *chg,
 				const union power_supply_propval *val);
 int smblib_set_prop_batt_capacity(struct smb_charger *chg,
@@ -528,6 +534,9 @@ int smblib_set_prop_pr_swap_in_progress(struct smb_charger *chg,
 				const union power_supply_propval *val);
 void smblib_usb_typec_change(struct smb_charger *chg);
 
+int smblib_get_prop_batt_resistance_id(struct smb_charger *chg,
+				     union power_supply_propval *val);
 int smblib_init(struct smb_charger *chg);
 int smblib_deinit(struct smb_charger *chg);
+int smblib_get_chg_otg_present(struct smb_charger *chg,union power_supply_propval *val);
 #endif /* __SMB2_CHARGER_H */
