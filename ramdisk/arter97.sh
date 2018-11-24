@@ -2,6 +2,8 @@
 
 exec > /dev/kmsg 2>&1
 
+/init.qcom.post_boot.sh
+
 export PATH=/res/asset:$PATH
 
 cd /link
