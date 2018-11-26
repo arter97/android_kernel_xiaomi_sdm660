@@ -2387,6 +2387,7 @@ int dsi_display_get_modes(struct dsi_display *display,
 			modes->pixel_clk_khz = (DSI_H_TOTAL(&modes->timing) *
 					DSI_V_TOTAL(&modes->timing) *
 					modes->timing.refresh_rate) / 1000;
+			modes->pixel_clk_khz = display->panel[0]->mode.pixel_clk_khz;
 		}
 
 		if (display->ctrl_count > 1) { /* TODO: remove if */
