@@ -297,8 +297,43 @@
 	};
 };
 
+&tlmm {
+	hall_int_active: hall_int_active {
+		mux {
+			pins = "gpio76";
+			function = "gpio";
+		};
+		config {
+			pins = "gpio76";
+			drive-strength = <6>;
+			bias-pull-up;
+		};
+	};
+	hall_int_suspend: hall_int_suspend {
+		mux {
+			pins = "gpio76";
+			function = "gpio";
+		};
+		config {
+			pins = "gpio76";
+		 	drive-strength = <6>;
+			bias-pull-up;
+		};
+	};
+};
+
 &soc {
-		i2c@c177000 {
+	hall_switch {
+		compatible = "hall-switch,och175";
+		pinctrl-names = "hall_active", "hall_suspend";
+		pinctrl-0 = <&hall_int_active>;
+		pinctrl-1 = <&hall_int_suspend>;
+		vdd-io-supply= <&pm660_l8>;
+		interrupt-names = "hall_irq";
+		hall,irq-gpio = <&tlmm 75 0x0>;
+	};
+
+	i2c@c177000 {
 		status = "ok";
 		focaltech@38{
 			compatible = "focaltech,fts";
