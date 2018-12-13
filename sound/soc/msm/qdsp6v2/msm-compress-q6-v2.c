@@ -2258,8 +2258,8 @@ static int msm_compr_trigger(struct snd_compr_stream *cstream, int cmd)
 					prtd->gapless_state.gapless_transition);
 		stream_id = ac->stream_id;
 		atomic_set(&prtd->start, 0);
+		q6asm_cmd_nowait(prtd->audio_client, CMD_PAUSE);
 		if (cstream->direction == SND_COMPRESS_CAPTURE) {
-			q6asm_cmd_nowait(prtd->audio_client, CMD_PAUSE);
 			atomic_set(&prtd->xrun, 0);
 			prtd->received_total = 0;
 			prtd->bytes_copied = 0;
