@@ -29,7 +29,7 @@
 
 # Setup zram
 echo lz4 > /sys/block/zram0/comp_algorithm
-echo 786432 > /sys/block/zram0/disksize
+echo 805306368 > /sys/block/zram0/disksize
 mkswap /dev/block/zram0
 swapon /dev/block/zram0 -p 1
 
