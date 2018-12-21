@@ -26,7 +26,7 @@ fstrim -v /data
 echo "1248000 1344000" > /sys/module/cpu_boost/parameters/input_boost_freq
 echo 90 > /sys/module/cpu_boost/parameters/input_boost_ms
 echo "1171200 1190400" > /sys/module/cpu_boost/parameters/input_boost_freq_s2
-echo 150 > /sys/module/cpu_boost/parameters/input_boost_ms_s2
+echo 1000 > /sys/module/cpu_boost/parameters/input_boost_ms_s2
 
 # Configure CPU governor
 echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/enable_prediction
