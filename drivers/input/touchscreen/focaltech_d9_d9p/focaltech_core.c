@@ -44,6 +44,11 @@
 #include <linux/hardware_info.h>
 #endif
 
+/*****************************************************************************
+* Global variable or extern global variabls/functions
+*****************************************************************************/
+static struct fts_ts_data *fts_data;
+
 #include "focaltech_i2c.c"
 #if FTS_GESTURE_EN
 #include "focaltech_gesture.c"
@@ -52,7 +57,7 @@
 #if FTS_LOCK_DOWN_INFO_EN
 char tp_lockdown_info[30];
 #endif
-u8 fts_chipid = 0;
+static u8 fts_chipid = 0;
 #ifdef CONFIG_PM
 static int boot_into_ffbm;
 #endif
@@ -70,22 +75,11 @@ static int boot_into_ffbm;
 #endif
 
 /*****************************************************************************
-* Global variable or extern global variabls/functions
-*****************************************************************************/
-struct fts_ts_data *fts_data;
-
-/*****************************************************************************
 * Static function prototypes
 *****************************************************************************/
-static void fts_release_all_finger(void);
-static int fts_ts_suspend(struct device *dev);
-static int fts_ts_resume(struct device *dev);
-
-#if defined(CONFIG_HQ_HARDWARE_INFO)
-char fts_tpdname[60] = {0};
-char fts_color[20] = {0};
-#endif
-
+static inline void fts_release_all_finger(void);
+static inline int fts_ts_suspend(struct device *dev);
+static inline int fts_ts_resume(struct device *dev);
 
 /*****************************************************************************
 *  Name: fts_wait_tp_to_valid
@@ -95,7 +89,7 @@ char fts_color[20] = {0};
 *  Output:
 *  Return: return 0 if tp valid, otherwise return error code
 *****************************************************************************/
-int fts_wait_tp_to_valid(struct i2c_client *client)
+static inline int fts_wait_tp_to_valid(struct i2c_client *client)
 {
 	int ret = 0;
 	int cnt = 0;
@@ -246,7 +240,7 @@ static int fts_get_ic_information(struct fts_ts_data *ts_data)
 *  Output:
 *  Return:
 *****************************************************************************/
-void fts_tp_state_recovery(struct i2c_client *client)
+static inline void fts_tp_state_recovery(struct i2c_client *client)
 {
 	FTS_FUNC_ENTER();
 	/* wait tp stable */
@@ -268,7 +262,7 @@ void fts_tp_state_recovery(struct i2c_client *client)
 *  Output:
 *  Return:
 *****************************************************************************/
-int fts_reset_proc(int hdelayms)
+static inline int fts_reset_proc(int hdelayms)
 {
 	FTS_FUNC_ENTER();
 	gpio_direction_output(fts_data->pdata->reset_gpio, 0);
@@ -289,7 +283,7 @@ int fts_reset_proc(int hdelayms)
 *  Output:
 *  Return:
 *****************************************************************************/
-void fts_irq_disable(void)
+static inline void fts_irq_disable(void)
 {
 	unsigned long irqflags;
 
@@ -312,7 +306,7 @@ void fts_irq_disable(void)
 *  Output:
 *  Return:
 *****************************************************************************/
-void fts_irq_enable(void)
+static inline void fts_irq_enable(void)
 {
 	unsigned long irqflags = 0;
 
@@ -566,7 +560,7 @@ static void fts_show_touch_buffer(u8 *buf, int point_num)
  *  Output:
  *  Return:
  *****************************************************************************/
-static void fts_release_all_finger(void)
+static inline void fts_release_all_finger(void)
 {
 	struct input_dev *input_dev = fts_data->input_dev;
 #if FTS_MT_PROTOCOL_B_EN
@@ -595,7 +589,7 @@ static void fts_release_all_finger(void)
  * Output:
  * Return: return 0 if success
  ***********************************************************************/
-static int fts_input_report_key(struct fts_ts_data *data, int index)
+static inline int fts_input_report_key(struct fts_ts_data *data, int index)
 {
 	u32 ik;
 	int id = data->events[index].id;
@@ -627,7 +621,7 @@ static int fts_input_report_key(struct fts_ts_data *data, int index)
 }
 
 #if FTS_MT_PROTOCOL_B_EN
-static int fts_input_report_b(struct fts_ts_data *data)
+static inline int fts_input_report_b(struct fts_ts_data *data)
 {
 	int i;
 	int touchs = 0;
@@ -692,7 +686,7 @@ static int fts_input_report_b(struct fts_ts_data *data)
 }
 
 #else
-static int fts_input_report_a(struct fts_ts_data *data)
+static inline int fts_input_report_a(struct fts_ts_data *data)
 {
 	int i = 0;
 	int touchs = 0;
@@ -845,7 +839,7 @@ static inline int fts_read_touchdata(struct fts_ts_data *data)
 *  Output:
 *  Return:
 *****************************************************************************/
-static void fts_report_event(struct fts_ts_data *data)
+static inline void fts_report_event(struct fts_ts_data *data)
 {
 #if FTS_MT_PROTOCOL_B_EN
 	fts_input_report_b(data);
@@ -1388,7 +1382,7 @@ int fts_LockDownInfo_get_from_boot(struct i2c_client *client, char *pProjectCode
 }
 #endif
 
-#ifdef CONFIG_HQ_HARDWARE_INFO
+#if 0
 /*******************************************************
 Function:
 	Read fw version and config version .
@@ -1732,7 +1726,7 @@ static int fts_ts_remove(struct i2c_client *client)
 *  Output:
 *  Return:
 *****************************************************************************/
-static int fts_ts_suspend(struct device *dev)
+static inline int fts_ts_suspend(struct device *dev)
 {
 	int ret = 0;
 	struct fts_ts_data *ts_data = dev_get_drvdata(dev);
@@ -1778,7 +1772,7 @@ static int fts_ts_suspend(struct device *dev)
 *  Output:
 *  Return:
 *****************************************************************************/
-static int fts_ts_resume(struct device *dev)
+static inline int fts_ts_resume(struct device *dev)
 {
 	struct fts_ts_data *ts_data = dev_get_drvdata(dev);
 
