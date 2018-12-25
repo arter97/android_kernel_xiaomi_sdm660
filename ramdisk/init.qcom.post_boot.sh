@@ -27,6 +27,19 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+# disable thermal bcl hotplug to switch governor
+echo 0 > /sys/module/msm_thermal/core_control/enabled
+
+# Bring all cores online
+echo 1 > /sys/devices/system/cpu/cpu0/online
+echo 1 > /sys/devices/system/cpu/cpu1/online
+echo 1 > /sys/devices/system/cpu/cpu2/online
+echo 1 > /sys/devices/system/cpu/cpu3/online
+echo 1 > /sys/devices/system/cpu/cpu4/online
+echo 1 > /sys/devices/system/cpu/cpu5/online
+echo 1 > /sys/devices/system/cpu/cpu6/online
+echo 1 > /sys/devices/system/cpu/cpu7/online
+
 # Setup zram
 echo lz4 > /sys/block/zram0/comp_algorithm
 echo 805306368 > /sys/block/zram0/disksize
@@ -69,11 +82,6 @@ echo 20 > /proc/sys/kernel/sched_small_wakee_task_load
 echo 0-3 > /dev/cpuset/background/cpus
 echo 0-3 > /dev/cpuset/system-background/cpus
 
-# disable thermal bcl hotplug to switch governor
-echo 0 > /sys/module/msm_thermal/core_control/enabled
-
-# online CPU0
-echo 1 > /sys/devices/system/cpu/cpu0/online
 # configure governor settings for little cluster
 echo "interactive" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/use_sched_load
@@ -89,8 +97,7 @@ echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/max_freq_hysteresis
 echo 633600 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/ignore_hispeed_on_notif
 echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/fast_ramp_down
-# online CPU4
-echo 1 > /sys/devices/system/cpu/cpu4/online
+
 # configure governor settings for big cluster
 echo "interactive" > /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
 echo 1 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/use_sched_load
@@ -107,16 +114,6 @@ echo 1113600 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq
 echo 1 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/ignore_hispeed_on_notif
 echo 1 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/fast_ramp_down
 
-# bring all cores online
-echo 1 > /sys/devices/system/cpu/cpu0/online
-echo 1 > /sys/devices/system/cpu/cpu1/online
-echo 1 > /sys/devices/system/cpu/cpu2/online
-echo 1 > /sys/devices/system/cpu/cpu3/online
-echo 1 > /sys/devices/system/cpu/cpu4/online
-echo 1 > /sys/devices/system/cpu/cpu5/online
-echo 1 > /sys/devices/system/cpu/cpu6/online
-echo 1 > /sys/devices/system/cpu/cpu7/online
-
 # configure LPM
 echo N > /sys/module/lpm_levels/system/pwr/cpu0/ret/idle_enabled
 echo N > /sys/module/lpm_levels/system/pwr/cpu1/ret/idle_enabled
@@ -132,9 +129,6 @@ echo N > /sys/module/lpm_levels/system/pwr/pwr-l2-ret/idle_enabled
 echo N > /sys/module/lpm_levels/system/perf/perf-l2-ret/idle_enabled
 # enable LPM
 echo 0 > /sys/module/lpm_levels/parameters/sleep_disabled
-
-# re-enable thermal and BCL hotplug
-echo 1 > /sys/module/msm_thermal/core_control/enabled
 
 # Enable bus-dcvs
 for cpubw in /sys/class/devfreq/*qcom,cpubw*
@@ -184,6 +178,38 @@ if [ -f /sys/devices/soc0/select_image ]; then
     echo $image_variant > /sys/devices/soc0/image_variant
     echo $oem_version > /sys/devices/soc0/image_crm_version
 fi
+
+# Configure input boost
+echo "1248000 1344000" > /sys/module/cpu_boost/parameters/input_boost_freq
+echo 90 > /sys/module/cpu_boost/parameters/input_boost_ms
+echo "1171200 1190400" > /sys/module/cpu_boost/parameters/input_boost_freq_s2
+echo 1000 > /sys/module/cpu_boost/parameters/input_boost_ms_s2
+
+# Configure CPU governor
+echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/enable_prediction
+echo 1 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/enable_prediction
+echo 59000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/max_freq_hysteresis
+
+# Set min freq for CPUs
+echo 300000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+echo 300000 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq
+
+# Disable console suspend
+echo N > /sys/module/printk/parameters/console_suspend
+
+# Disable userspace intervention
+chmod 444 \
+  /sys/module/cpu_boost/parameters/input_boost_freq \
+  /sys/module/cpu_boost/parameters/input_boost_ms \
+  /sys/module/cpu_boost/parameters/input_boost_freq_s2 \
+  /sys/module/cpu_boost/parameters/input_boost_ms_s2 \
+  /sys/devices/system/cpu/cpu0/cpufreq/interactive/enable_prediction \
+  /sys/devices/system/cpu/cpu4/cpufreq/interactive/enable_prediction \
+  /sys/devices/system/cpu/cpu4/cpufreq/interactive/max_freq_hysteresis \
+  /sys/module/printk/parameters/console_suspend
+
+# re-enable thermal and BCL hotplug
+echo 1 > /sys/module/msm_thermal/core_control/enabled
 
 # Parse misc partition path and set property
 misc_link=$(ls -l /dev/block/bootdevice/by-name/misc)
