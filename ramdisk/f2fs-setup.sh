@@ -7,7 +7,7 @@ export PATH=/res/asset:$PATH
 find /sys/fs/f2fs -name extension_list | while read list; do
   HASH=$(md5sum $list | awk '{print $1}')
 
-  if [[ $HASH == "17167603f89971ed8f9c6acc1e1cc95c" ]]; then
+  if [[ $HASH == "5ae864acb3c353e4ae570c608506675b" ]]; then
     echo "f2fs-setup.sh: extensions list up-to-date with $list"
     continue
   fi
@@ -16,7 +16,7 @@ find /sys/fs/f2fs -name extension_list | while read list; do
 
   echo "f2fs-setup.sh: removing previous extensions list"
 
-  HOT=$(cat $list | grep -n 'hot file extensions' | cut -d : -f 1)
+  HOT=$(cat $list | grep -n 'hot file extension' | cut -d : -f 1)
   COLD=$(($(cat $list | wc -l) - $HOT))
 
   COLDLIST=$(head -n$(($HOT - 1)) $list | grep -v ':')
