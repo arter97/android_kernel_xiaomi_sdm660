@@ -323,6 +323,13 @@ on late-init
     trigger mmi
 
 on post-fs
+    # Prepare vendor-related binded mounts
+    mount none /firmware /vendor/firmware_mnt bind rec
+    mount none /bt_firmware /vendor/bt_firmware bind rec
+    mount none /dsp /vendor/dsp bind rec
+    mkdir /mnt/vendor/persist 0771 root system
+    mount none /persist /mnt/vendor/persist bind rec
+
     # Load properties from
     #     /system/build.prop,
     #     /odm/build.prop,
