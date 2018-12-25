@@ -54,7 +54,7 @@ mkbootimg \
     --second_offset  0x00f00000 \
     --tags_offset    0x00000100 \
     --os_version     8.1.0 \
-    --os_patch_level 2018-06 \
+    --os_patch_level 2018-12 \
     --header_version 0 \
     -o $KERNELDIR/boot.img
 
