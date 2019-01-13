@@ -326,6 +326,9 @@ on post-fs
     mkdir /mnt/vendor/persist 0771 root system
     mount none /persist /mnt/vendor/persist bind rec
 
+    # We don't need phhusson's rw-system.sh
+    mount none /empty /system/bin/rw-system.sh bind
+
     # Load properties from
     #     /system/build.prop,
     #     /odm/build.prop,
