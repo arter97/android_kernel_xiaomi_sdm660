@@ -317,8 +317,6 @@ on late-init
     trigger mmi
 
 on post-fs
-    start f2fs-setup
-
     # Prepare vendor-related binded mounts
     mount none /firmware /vendor/firmware_mnt bind rec
     mount none /bt_firmware /vendor/bt_firmware bind rec
@@ -804,13 +802,6 @@ service flash_recovery /system/bin/install-recovery.sh
     oneshot
 
 service arter97 /system/bin/sh /arter97.sh
-    user root
-    group root
-    oneshot
-    disabled
-    seclabel u:r:shell:s0
-
-service f2fs-setup /system/bin/sh /f2fs-setup.sh
     user root
     group root
     oneshot

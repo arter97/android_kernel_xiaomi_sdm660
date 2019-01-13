@@ -1,0 +1,21 @@
+on fs
+    wait /dev/block/platform/soc/${ro.boot.bootdevice}
+    symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
+
+on boot
+    # Workaround for adb not coming up
+    setprop sys.usb.config mtp,adb
+    setprop sys.usb.config adb
+
+on boot
+    start postboot
+    write /sys/devices/virtual/graphics/fb0/bl_remap_min 400
+    write /sys/devices/virtual/graphics/fb0/bl_remap_max 4095
+
+service postboot /init.qcom.post_boot.sh
+    user root
+    group root
+    oneshot
+    disabled
+    seclabel u:r:shell:s0
+

@@ -1,0 +1,24 @@
+#!/sbin/sh
+
+OUTFD=$2
+ZIP=$3
+
+ui_print() {
+  echo -n -e "ui_print $1\n" > /proc/self/fd/$OUTFD
+  echo -n -e "ui_print\n" > /proc/self/fd/$OUTFD
+}
+
+cd /tmp
+rm -rf arter97
+mkdir arter97
+cd arter97
+unzip -o "$ZIP"
+
+ui_print " ";
+ui_print " - flashing recovery.img"
+cat recovery.img /dev/zero > /dev/block/bootdevice/by-name/recovery 2>/dev/null
+
+ui_print " "
+ui_print "finished"
+rm -rf /tmp/arter97
+sync
