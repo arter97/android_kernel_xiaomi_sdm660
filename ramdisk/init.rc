@@ -558,6 +558,9 @@ on post-fs-data
     mkdir /data/cache/backup_stage 0700 system system
     mkdir /data/cache/backup 0700 system system
 
+    write /sys/devices/virtual/graphics/fb0/bl_remap_min 160
+    write /sys/devices/virtual/graphics/fb0/bl_remap_max 4095
+
     init_user0
 
     # Set SELinux security contexts on upgrade or policy update.
