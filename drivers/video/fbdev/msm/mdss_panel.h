@@ -786,6 +786,8 @@ struct mdss_panel_info {
 	u32 wait_cycle;
 	u32 pdest;
 	u32 brightness_max;
+	u32 bl_remap_max;
+	u32 bl_remap_min;
 	u32 bl_max;
 	u32 bl_min;
 	u32 fb_num;
