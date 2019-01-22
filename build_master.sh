@@ -6,7 +6,7 @@ if [[ "${1}" != "skip" ]] ; then
 	./build_recovery.sh skip || exit 1
 fi
 
-VERSION="$(cat version)"-"$(date +%F | sed s@-@@g)"
+VERSION="$(date +%F | sed s@-@@g)"
 
 if [ -e boot.img ] ; then
 	rm arter97-kernel-$VERSION.zip 2>/dev/null
