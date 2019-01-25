@@ -3,6 +3,9 @@ export KERNELDIR=`readlink -f .`
 export RAMFS_SOURCE=`readlink -f $KERNELDIR/recovery`
 export PARTITION_SIZE=67108864
 
+export OS="9.0.0"
+export SPL="2025-12"
+
 echo "kerneldir = $KERNELDIR"
 echo "ramfs_source = $RAMFS_SOURCE"
 
@@ -32,6 +35,9 @@ cd $RAMFS_TMP
 find . -name .git -exec rm -rf {} \;
 find . -name EMPTY_DIRECTORY -exec rm -rf {} \;
 
+sed -i -e s@ro.build.version.release.*@ro.build.version.release=${OS}@g \
+       -e s@ro.build.version.security_patch.*@ro.build.version.security_patch=${SPL}-01@g prop.default
+
 $KERNELDIR/ramdisk_fix_permissions.sh 2>/dev/null
 
 cd $KERNELDIR
@@ -53,8 +59,8 @@ mkbootimg \
     --ramdisk_offset 0x01000000 \
     --second_offset  0x00f00000 \
     --tags_offset    0x00000100 \
-    --os_version     9.0.0 \
-    --os_patch_level 2018-12 \
+    --os_version     $OS \
+    --os_patch_level $SPL \
     --header_version 0 \
     -o $KERNELDIR/recovery.img
 
