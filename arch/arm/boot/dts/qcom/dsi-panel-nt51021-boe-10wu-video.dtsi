@@ -334,5 +334,6 @@
 		qcom,mdss-dsi-force-clock-lane-hs;
 		qcom,mdss-pan-physical-width-dimension = <135>;
 		qcom,mdss-pan-physical-height-dimension = <216>;
+		qcom,ulps-enabled;
 	};
 };
