@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2016-2017,2019 The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -1567,13 +1567,13 @@ struct dsi_panel *dsi_panel_get(struct device *parent,
 		pr_err("failed to parse panel timing, rc=%d\n", rc);
 		goto error;
 	}
-
-	panel->mode.pixel_clk_khz = (DSI_H_TOTAL(&panel->mode.timing) *
-				    DSI_V_TOTAL(&panel->mode.timing) *
-				    panel->mode.timing.refresh_rate) / 1000;
-
-	panel->mode.pixel_clk_khz = panel->mode.timing.clk_rate_hz / 1000;
-
+	if (panel->mode.timing.clk_rate_hz == 0) {
+		panel->mode.pixel_clk_khz = (DSI_H_TOTAL(&panel->mode.timing) *
+					DSI_V_TOTAL(&panel->mode.timing) *
+					panel->mode.timing.refresh_rate) / 1000;
+	} else {
+		panel->mode.pixel_clk_khz = panel->mode.timing.clk_rate_hz / 1000;
+	}
 	rc = dsi_panel_parse_host_config(panel, of_node);
 	if (rc) {
 		pr_err("failed to parse host configuration, rc=%d\n", rc);
