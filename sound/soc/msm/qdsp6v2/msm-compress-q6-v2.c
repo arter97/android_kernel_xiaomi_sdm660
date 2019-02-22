@@ -1274,12 +1274,6 @@ static int msm_compr_configure_dsp_for_playback
 	int dir = IN, ret = 0;
 	struct audio_client *ac = prtd->audio_client;
 	uint32_t stream_index;
-	struct asm_softpause_params softpause = {
-		.enable = SOFT_PAUSE_ENABLE,
-		.period = SOFT_PAUSE_PERIOD,
-		.step = SOFT_PAUSE_STEP,
-		.rampingcurve = SOFT_PAUSE_CURVE_LINEAR,
-	};
 	struct asm_softvolume_params softvol = {
 		.period = SOFT_VOLUME_PERIOD,
 		.step = SOFT_VOLUME_STEP,
@@ -1356,11 +1350,6 @@ static int msm_compr_configure_dsp_for_playback
 		ret = q6asm_send_cal(ac);
 		if (ret < 0)
 			pr_debug("%s : Send cal failed : %d", __func__, ret);
-
-		ret = q6asm_set_softpause(ac, &softpause);
-		if (ret < 0)
-			pr_err("%s: Send SoftPause Param failed ret=%d\n",
-					__func__, ret);
 
 		ret = q6asm_set_softvolume(ac, &softvol);
 		if (ret < 0)
@@ -2267,8 +2256,8 @@ static int msm_compr_trigger(struct snd_compr_stream *cstream, int cmd)
 					prtd->gapless_state.gapless_transition);
 		stream_id = ac->stream_id;
 		atomic_set(&prtd->start, 0);
+		q6asm_cmd_nowait(prtd->audio_client, CMD_PAUSE);
 		if (cstream->direction == SND_COMPRESS_CAPTURE) {
-			q6asm_cmd_nowait(prtd->audio_client, CMD_PAUSE);
 			atomic_set(&prtd->xrun, 0);
 			prtd->received_total = 0;
 			prtd->bytes_copied = 0;
