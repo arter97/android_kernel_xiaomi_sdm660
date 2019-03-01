@@ -1,0 +1,4 @@
+config INPUT_FINGERPRINT
+	tristate "Fingerprint driver support"
+
+source "drivers/input/fingerprint/fpc/Kconfig"
