@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 4.4.175 Kernel Configuration
+# Linux/arm64 4.4.176 Kernel Configuration
 #
 CONFIG_ARM64=y
 CONFIG_64BIT=y
@@ -1953,6 +1953,8 @@ CONFIG_INPUT_UINPUT=y
 # CONFIG_SENSORS_BMA421 is not set
 # CONFIG_SENSORS_BMA422 is not set
 # CONFIG_SENSORS_BMA455 is not set
+CONFIG_INPUT_FINGERPRINT=y
+CONFIG_FINGERPRINT_FPC1020=y
 
 #
 # Hardware I/O ports
