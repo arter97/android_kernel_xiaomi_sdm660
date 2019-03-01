@@ -1943,7 +1943,6 @@ static int gtp_probe(struct i2c_client *client, const struct i2c_device_id *id)
 		if (ret < 0)
 			dev_err(&client->dev, "Failed set irq wake\n");
 	}
-	pdata->slide_wakeup = false;
 	gtp_register_powermanager(ts);
 
 	ret = gtp_create_file(ts);
