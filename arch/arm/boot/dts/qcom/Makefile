@@ -195,7 +195,8 @@ dtb-$(CONFIG_ARCH_MSMHAMSTER) += msmhamster-rumi.dtb
 
 dtb-$(CONFIG_ARCH_SDM660) += \
 	sda660-mtp.dtb \
-	sda660-pm660a-mtp.dtb
+	sda660-pm660a-mtp.dtb \
+	sdm660-qrd.dtb
 
 dtb-$(CONFIG_ARCH_SDM630) += sdm630-rumi.dtb \
 	sdm630-pm660a-rumi.dtb \
