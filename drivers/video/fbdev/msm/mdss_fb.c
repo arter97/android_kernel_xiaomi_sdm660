@@ -340,6 +340,9 @@ static void mdss_fb_set_bl_brightness(struct led_classdev *led_cdev,
 	if (value > mfd->panel_info->brightness_max)
 		value = mfd->panel_info->brightness_max;
 
+	if (mfd->panel_info->bl_allowed_min && value < mfd->panel_info->bl_allowed_min)
+		value = mfd->panel_info->bl_allowed_min;
+
 	/* This maps android backlight level 0 to 255 into
 	   driver backlight level 0 to bl_max with rounding */
 	MDSS_BRIGHT_TO_BL(bl_lvl, value, mfd->panel_info->bl_max,
@@ -371,6 +374,9 @@ static enum led_brightness mdss_fb_get_bl_brightness(
 			(mfd->panel_info->bl_remap_max - mfd->panel_info->bl_remap_min) /
 			mfd->panel_info->brightness_max + mfd->panel_info->bl_remap_min;
 	}
+
+	if (mfd->panel_info->bl_allowed_min && value < mfd->panel_info->bl_allowed_min)
+		value = mfd->panel_info->bl_allowed_min;
 
 	return value;
 }
@@ -1147,6 +1153,32 @@ static ssize_t mdss_fb_set_bl_remap_min(struct device *dev,
 	return len;
 }
 
+static ssize_t mdss_fb_get_bl_allowed_min(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	ssize_t ret;
+	struct fb_info *fbi = dev_get_drvdata(dev);
+	struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)fbi->par;
+
+	ret = snprintf(buf, PAGE_SIZE, "%d\n", mfd->panel_info->bl_allowed_min);
+
+	return ret;
+}
+
+static ssize_t mdss_fb_set_bl_allowed_min(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t len)
+{
+	int data = 0;
+	struct fb_info *fbi = dev_get_drvdata(dev);
+	struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)fbi->par;
+
+	sscanf(buf, "%d", &data);
+
+	mfd->panel_info->bl_allowed_min = data;
+
+	return len;
+}
+
 static DEVICE_ATTR(msm_fb_type, S_IRUGO, mdss_fb_get_type, NULL);
 static DEVICE_ATTR(msm_fb_split, S_IRUGO | S_IWUSR, mdss_fb_show_split,
 					mdss_fb_store_split);
@@ -1172,6 +1204,8 @@ static DEVICE_ATTR(bl_remap_max, S_IRUGO | S_IWUSR,
 	mdss_fb_get_bl_remap_max, mdss_fb_set_bl_remap_max);
 static DEVICE_ATTR(bl_remap_min, S_IRUGO | S_IWUSR,
 	mdss_fb_get_bl_remap_min, mdss_fb_set_bl_remap_min);
+static DEVICE_ATTR(bl_allowed_min, S_IRUGO | S_IWUSR,
+	mdss_fb_get_bl_allowed_min, mdss_fb_set_bl_allowed_min);
 #ifdef CONFIG_HQ_CUSTOM_DISPLAY_FEATURE
 static DEVICE_ATTR(msm_fb_dispparam, S_IRUGO | S_IWUSR,
 	mdss_fb_get_dispparam, mdss_fb_change_dispparam);
@@ -1193,6 +1227,7 @@ static struct attribute *mdss_fb_attrs[] = {
 	&dev_attr_idle_power_collapse.attr,
 	&dev_attr_bl_remap_max.attr,
 	&dev_attr_bl_remap_min.attr,
+	&dev_attr_bl_allowed_min.attr,
 #ifdef CONFIG_HQ_CUSTOM_DISPLAY_FEATURE
 	&dev_attr_msm_fb_dispparam.attr,
 #endif
