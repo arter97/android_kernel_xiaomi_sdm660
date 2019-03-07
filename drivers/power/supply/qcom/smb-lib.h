@@ -312,7 +312,6 @@ struct smb_charger {
 	struct work_struct	legacy_detection_work;
 	struct delayed_work	uusb_otg_work;
 	struct delayed_work	bb_removal_work;
-	struct delayed_work     update_current_work;
 	struct delayed_work	typec_disable_cmd_work;
 
 	/* cached status */
