@@ -574,12 +574,14 @@ static int sde_connector_atomic_get_property(struct drm_connector *connector,
 	c_state = to_sde_connector_state(state);
 
 	idx = msm_property_index(&c_conn->property_info, property);
-	if (idx == CONNECTOR_PROP_RETIRE_FENCE)
-		rc = sde_fence_create(&c_conn->retire_fence, val, 0);
-	else
+	if (idx == CONNECTOR_PROP_RETIRE_FENCE) {
+		*val = ~0;
+		rc = 0;
+	} else {
 		/* get cached property value */
 		rc = msm_property_atomic_get(&c_conn->property_info,
 				c_state->property_values, 0, property, val);
+	}
 
 	/* allow for custom override */
 	if (c_conn->ops.get_property)
@@ -646,7 +648,8 @@ void sde_connector_complete_commit(struct drm_connector *connector)
 
 		sde_splash_free_resource(priv->kms, &priv->phandle,
 					c_conn->connector_type,
-					c_conn->display);
+					c_conn->display,
+					c_conn->is_shared);
 		if (atomic_add_unless(&cpu_up_scheduled, 1, 1)) {
 			INIT_WORK(&cpu_up_work, wake_up_cpu);
 			schedule_work(&cpu_up_work);
@@ -1024,7 +1027,8 @@ struct drm_connector *sde_connector_init(struct drm_device *dev,
 
 	sinfo = &sde_kms->splash_info;
 	if (sinfo && sinfo->handoff)
-		sde_splash_setup_connector_count(sinfo, connector_type);
+		sde_splash_setup_connector_count(sinfo, connector_type,
+					display, c_conn->is_shared);
 
 	priv->connectors[priv->num_connectors++] = &c_conn->base;
 
