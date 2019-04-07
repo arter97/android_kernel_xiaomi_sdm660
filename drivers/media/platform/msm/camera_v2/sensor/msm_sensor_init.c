@@ -1,4 +1,5 @@
-/* Copyright (c) 2013-2016, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2013-2017, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2018 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -48,6 +49,10 @@ static int msm_sensor_wait_for_probe_done(struct msm_sensor_init_t *s_init)
 		return 0;
 	}
 
+
+
+
+
 	wait_event(s_init->state_wait,
 		(s_init->module_init_status == 1));
 
@@ -76,7 +81,7 @@ static int32_t msm_sensor_driver_cmd(struct msm_sensor_init_t *s_init,
 			cfg->entity_name);
 		mutex_unlock(&s_init->imutex);
 		if (rc < 0)
-			pr_err("%s failed (non-fatal) rc %d", __func__, rc);
+			pr_err_ratelimited("%s failed (non-fatal) rc %d", __func__, rc);
 		break;
 
 	case CFG_SINIT_PROBE_DONE:
@@ -141,7 +146,7 @@ static long msm_sensor_init_subdev_do_ioctl(
 		cmd = VIDIOC_MSM_SENSOR_INIT_CFG;
 		rc = msm_sensor_init_subdev_ioctl(sd, cmd, &sensor_init_data);
 		if (rc < 0) {
-			pr_err("%s:%d VIDIOC_MSM_SENSOR_INIT_CFG failed (non-fatal)",
+			pr_err_ratelimited("%s:%d VIDIOC_MSM_SENSOR_INIT_CFG failed (non-fatal)",
 				__func__, __LINE__);
 			return rc;
 		}

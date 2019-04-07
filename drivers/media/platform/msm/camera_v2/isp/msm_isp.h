@@ -762,6 +762,11 @@ struct msm_vfe_common_subdev {
 	struct msm_vfe_common_dev_data *common_data;
 };
 
+struct isp_proc {
+	uint32_t  kernel_sofid;
+	uint32_t  vfeid;
+};
+
 struct vfe_device {
 	/* Driver private data */
 	struct platform_device *pdev;
@@ -791,7 +796,6 @@ struct vfe_device {
 	enum cam_ahb_clk_vote ahb_vote;
 	enum cam_ahb_clk_vote user_requested_ahb_vote;
 	struct cx_ipeak_client *vfe_cx_ipeak;
-	int cx_ipeak_bit;
 
 	/* Sync variables*/
 	struct completion reset_complete;
@@ -800,8 +804,7 @@ struct vfe_device {
 	struct mutex core_mutex;
 	spinlock_t shared_data_lock;
 	spinlock_t reg_update_lock;
-	spinlock_t reset_completion_lock;
-	spinlock_t halt_completion_lock;
+	spinlock_t completion_lock;
 
 	/* Tasklet info */
 	atomic_t irq_cnt;
@@ -847,7 +850,7 @@ struct vfe_device {
 	uint32_t recovery_irq1_mask;
 	/* total bandwidth per vfe */
 	uint64_t total_bandwidth;
-	struct isp_kstate *isp_page;
+	struct isp_proc *isp_page;
 };
 
 struct vfe_parent_device {

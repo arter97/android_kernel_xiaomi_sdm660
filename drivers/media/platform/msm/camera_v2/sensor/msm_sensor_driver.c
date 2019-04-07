@@ -1,4 +1,5 @@
 /* Copyright (c) 2013-2017, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2018 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -1099,12 +1100,11 @@ CSID_TG:
 	 * Set probe succeeded flag to 1 so that no other camera shall
 	 * probed on this slot
 	 */
-
-	/*Add by Murp Zhou for camera hardinfo*/
+	 /*Add by Murp Zhou for camera hardinfo*/
 	#ifdef CONFIG_HQ_HARDWARE_INFO
-	if (0 == slave_info->camera_id) {
+	if (0 == slave_info->camera_id)
 		get_hardware_info_data(HWID_MAIN_CAM,(void *)slave_info->sensor_name);
-	} else {
+	else {
 		if (2 == slave_info->camera_id)
 			get_hardware_info_data(HWID_SUB_CAM,(void *)slave_info->sensor_name);
 	}
@@ -1439,8 +1439,8 @@ static int32_t msm_sensor_driver_i2c_probe(struct i2c_client *client,
 				rc);
 			goto FREE_S_CTRL;
 		}
+		return rc;
 	}
-	return rc;
 FREE_S_CTRL:
 	kfree(s_ctrl);
 	return rc;
