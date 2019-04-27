@@ -1,4 +1,4 @@
-/* Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2016-2019, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -96,6 +96,7 @@ struct cnss_usb_wlan_driver {
 	int  (*suspend)(struct usb_interface *pintf, pm_message_t state);
 	int  (*resume)(struct usb_interface *pintf);
 	int  (*reset_resume)(struct usb_interface *pintf);
+	void (*update_status)(struct usb_interface *pintf, uint32_t status);
 	const struct usb_device_id *id_table;
 };
 
@@ -189,6 +190,7 @@ extern void cnss_schedule_recovery(struct device *dev,
 extern int cnss_self_recovery(struct device *dev,
 			      enum cnss_recovery_reason reason);
 extern int cnss_force_fw_assert(struct device *dev);
+extern int cnss_force_collect_rddm(struct device *dev);
 extern void *cnss_get_virt_ramdump_mem(struct device *dev, unsigned long *size);
 extern int cnss_get_fw_files_for_target(struct device *dev,
 					struct cnss_fw_files *pfw_files,
