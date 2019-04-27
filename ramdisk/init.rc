@@ -281,9 +281,6 @@ on firmware_mounts_complete
 on late-init
     trigger early-fs
 
-    start arter97
-    wait /.bind
-
     # Mount fstab in init.{$device}.rc by mount_all command. Optional parameter
     # '--early' can be specified to skip entries with 'latemount'.
     # /system and /vendor must be mounted by the end of the fs stage,
@@ -801,10 +798,3 @@ on property:ro.debuggable=1
 service flash_recovery /system/bin/install-recovery.sh
     class main
     oneshot
-
-service arter97 /system/bin/sh /arter97.sh
-    user root
-    group root
-    oneshot
-    disabled
-    seclabel u:r:shell:s0
