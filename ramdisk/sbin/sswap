@@ -1,0 +1,9 @@
+#!/system/bin/sh
+
+# 2 GB
+echo 2147483648 > /sys/devices/virtual/block/vnswap0/disksize
+echo 130 > /proc/sys/vm/swappiness
+
+# System mkswap behaves incorrectly with vnswap
+/sbin/mkswap /dev/block/vnswap0
+swapon /dev/block/vnswap0

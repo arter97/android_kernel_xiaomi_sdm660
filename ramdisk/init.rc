@@ -324,6 +324,9 @@ on post-fs
     # We don't need phhusson's rw-system.sh
     mount none /empty /system/bin/rw-system.sh bind
 
+    # Setup swap
+    start setup_swap
+
     # Load properties from
     #     /system/build.prop,
     #     /odm/build.prop,
@@ -798,3 +801,10 @@ on property:ro.debuggable=1
 service flash_recovery /system/bin/install-recovery.sh
     class main
     oneshot
+
+service setup_swap /sbin/sswap
+    user root
+    group root
+    oneshot
+    disabled
+    seclabel u:r:shell:s0
